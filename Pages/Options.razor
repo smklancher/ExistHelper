@@ -1,0 +1,72 @@
+@page "/options"
+@inject ExistHelper.Services.ApiService ApiService
+@inject NavigationManager Navigation
+@inject IJSRuntime JS
+
+<h3>Options</h3>
+
+<div>
+    <label for="usernameInput">Username</label>
+    <input id="usernameInput" @bind="username" placeholder="Username" style="width: 300px;" />
+</div>
+<div>
+    <label for="passwordInput">Password</label>
+    <input id="passwordInput" type="password" @bind="password" placeholder="Password" style="width: 300px;" />
+</div>
+<div>
+    <button @onclick="GetTokenFromApi" style="margin-top: 8px;">Get Token</button>
+</div>
+<div style="margin-top: 16px;">
+    <label for="tokenInput">API Bearer Token</label>
+    <input id="tokenInput" @bind="token" placeholder="Bearer token" style="width: 300px;" />
+    <button @onclick="SaveToken">Save</button>
+</div>
+@if (!string.IsNullOrEmpty(error))
+{
+    <div style="color: red;">@error</div>
+}
+
+@code {
+    private string username = string.Empty;
+    private string password = string.Empty;
+    private string token = string.Empty;
+    private string error = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var storedToken = await JS.InvokeAsync<string>("localStorage.getItem", "api_token");
+        if (!string.IsNullOrWhiteSpace(storedToken))
+        {
+            token = storedToken;
+        }
+    }
+
+    private async Task GetTokenFromApi()
+    {
+        error = string.Empty;
+        try
+        {
+            var result = await ApiService.GetTokenFromCredentialsAsync(username, password);
+            if (!string.IsNullOrEmpty(result))
+            {
+                token = result;
+                await JS.InvokeVoidAsync("localStorage.setItem", "api_token", token);
+            }
+            else
+            {
+                error = "Token not received. Check credentials.";
+            }
+        }
+        catch (Exception ex)
+        {
+            error = "Failed to get token: " + ex.Message;
+        }
+    }
+
+    private async void SaveToken()
+    {
+        ApiService.SetToken(token);
+        await JS.InvokeVoidAsync("localStorage.setItem", "api_token", token);
+        Navigation.NavigateTo("/apiresults");
+    }
+}

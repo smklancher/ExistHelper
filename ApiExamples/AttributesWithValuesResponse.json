@@ -1,0 +1,32 @@
+{
+  "count": 98,
+  "next": "https://exist.io/api/2/attributes/with-values/?page=2",
+  "previous": null,
+  "results": [
+    {
+      "group": {
+        "name": "activity",
+        "label": "Activity",
+        "priority": 1
+      },
+      "template": "steps",
+      "name": "steps",
+      "label": "Steps",
+      "priority": 1,
+      "manual": false,
+      "active": true,
+      "value_type": 0,
+      "value_type_description": "Integer",
+      "service": {
+        "name": "googlefit",
+        "label": "Google Fit"
+      },
+      "values": [
+        {
+          "date": "2022-05-16",
+          "value": 1533
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+@page "/apiresults"  
+@inject ExistHelper.Services.ApiService ApiService  
+@inject ExistHelper.Services.ExistService ExistService  
+
+
+<h3>Attribute Values</h3>  
+
+<div class="mb-2">  
+    <label>Page: <input type="number" @bind="page" min="1" style="width:80px;" /></label>  
+    <label>Limit: <input type="number" @bind="limit" min="1" style="width:80px;" /></label>  
+    <label>Days: <input type="number" @bind="days" min="1" max="31" style="width:80px;" /></label>  
+    <label>Date Max: <input type="date" @bind="date_max" style="width:150px;" /></label>  
+</div>  
+<div class="mb-2">  
+    <label>Groups: <input @bind="groups" placeholder="e.g. activity,workouts" style="width:200px;" /></label>  
+    <label>Attributes: <input @bind="attributes" placeholder="e.g. steps,weight" style="width:200px;" /></label>  
+    <label>Templates: <input @bind="templates" placeholder="e.g. template1,template2" style="width:200px;" /></label>  
+    <label>  
+        Manual Only: <input type="checkbox" @bind="manual" />  
+    </label>  
+</div>  
+<button class="btn btn-primary" @onclick="GetAttributeValues">Get Attribute Values</button>  
+
+@if (response == null)  
+{  
+    <p>No data loaded.</p>  
+}  
+else if (response.Results == null || response.Results.Count == 0)  
+{  
+    <p>No results found or invalid token.</p>  
+}  
+else  
+{  
+    <table class="table">  
+        <thead>  
+            <tr>  
+                <th>Group Name</th>  
+                <th>Name</th>  
+                <th>Value Type Description</th>  
+                <th>Service Label</th>  
+                <th>Date</th>  
+                <th>Value</th>  
+            </tr>  
+        </thead>  
+        <tbody>  
+            @foreach (var attr in response.Results)  
+            {  
+                if (attr.Values != null && attr.Values.Count > 0)  
+                {  
+                    foreach (var val in attr.Values)  
+                    {  
+                        <tr>  
+                            <td>@attr.Group?.Name</td>  
+                            <td>@attr.Name</td>  
+                            <td>@attr.ValueTypeDescription</td>  
+                            <td>@attr.Service?.Label</td>  
+                            <td>@val.Date</td>  
+                            <td>@val.Value</td>  
+                        </tr>  
+                    }  
+                }  
+                else  
+                {  
+                    <tr>  
+                        <td>@attr.Group?.Name</td>  
+                        <td>@attr.Name</td>  
+                        <td>@attr.ValueTypeDescription</td>  
+                        <td>@attr.Service?.Label</td>  
+                        <td></td>  
+                        <td></td>  
+                    </tr>  
+                }  
+            }  
+        </tbody>  
+    </table>  
+}  
+
+@code {  
+
+
+    private int? page = 1;  
+    private int? limit;  
+    private int? days;  
+    private DateTime? date_max; // Fix for CS1503: Changed type from string to DateTime?  
+    private string? groups;  
+    private string? attributes;  
+    private string? templates;  
+    private bool? manual;  
+
+    private ExistHelper.Models.AttributeResponse? response;  
+
+    private async Task GetAttributeValues()  
+    {  
+        response = await ExistService.GetAttributesWithValuesAsync(  
+            page: page,  
+            limit: limit,  
+            days: days,  
+            date_max: date_max?.ToString("yyyy-MM-dd"), // Fix for CS0029: Convert DateTime? to string  
+            groups: groups,  
+            attributes: attributes,  
+            templates: templates,  
+            manual: manual == true ? true : (bool?)null  
+        );  
+    }  
+}
