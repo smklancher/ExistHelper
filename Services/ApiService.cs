@@ -23,6 +23,11 @@ namespace ExistHelper.Services
             _token = token;
         }
 
+        public bool IsTokenSet()
+        {
+            return !string.IsNullOrWhiteSpace(_token);
+        }
+
         public async Task<string> GetApiResultsAsync(string endpoint, Dictionary<string, string>? parameters = null)
         {
             if (string.IsNullOrWhiteSpace(_token))
