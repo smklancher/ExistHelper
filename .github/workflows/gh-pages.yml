@@ -1,3 +1,5 @@
+# using this approach https://github.com/jsakamoto/PublishSPAforGitHubPages.Build
+
 name: github pages
 
 on:
