@@ -5,6 +5,30 @@
 
 <h3>Options</h3>
 
+<p>
+    To use this site you must provide a token as documented by Exist
+    (<a href="https://developer.exist.io/reference/authentication/token/" target="_blank">https://developer.exist.io/reference/authentication/token/</a>).  
+    The OAuth approach isn't viable because since an open source project with no backend cannot hide the OAuth client_secret.
+</p>
+
+<h4>Windows</h4>
+<p>Use this PowerShell command to get your token:</p>
+<pre>
+(Invoke-WebRequest -Uri "https://exist.io/api/2/auth/simple-token/" -Method POST -Body @@{username='bobby_tables';password='existrulz123'}).Content|ConvertFrom-Json
+</pre>
+
+<h4>Non-Windows</h4>
+<p>Use this shell command to get your token:</p> 
+<pre>
+curl -X POST "https://exist.io/api/2/auth/simple-token/" -d "username=bobby_tables" -d "password=existrulz123"
+</pre>
+
+<h4>Web</h4>
+Or you can provide credentials to have the site get the token automatically.
+<br />
+<div style="border:1px solid #f5c2c7; background:#f8d7da; color:#842029; padding:12px; border-radius:4px; margin-bottom:12px;">
+    <strong>Warning:</strong> Though the site does nothing nefarious, obviously it is not good practice to provide your credentials to a third party website.
+</div>
 <div>
     <label for="usernameInput">Username</label>
     <input id="usernameInput" @bind="username" placeholder="Username" style="width: 300px;" />
@@ -16,6 +40,7 @@
 <div>
     <button @onclick="GetTokenFromApi" style="margin-top: 8px;">Get Token</button>
 </div>
+
 <div style="margin-top: 16px;">
     <label for="tokenInput">API Bearer Token</label>
     <input id="tokenInput" @bind="token" placeholder="Bearer token" style="width: 300px;" />
@@ -67,6 +92,6 @@
     {
         ApiService.SetToken(token);
         await JS.InvokeVoidAsync("localStorage.setItem", "api_token", token);
-        Navigation.NavigateTo("/apiresults");
+        Navigation.NavigateTo("apiresults");
     }
 }

@@ -1,4 +1,6 @@
 # using this approach https://github.com/jsakamoto/PublishSPAforGitHubPages.Build
+# which also uses this: https://github.com/peaceiris/actions-gh-pages
+# Different approach here: https://learn.microsoft.com/en-us/aspnet/core/blazor/host-and-deploy/webassembly/github-pages?view=aspnetcore-9.0
 
 name: github pages
 
