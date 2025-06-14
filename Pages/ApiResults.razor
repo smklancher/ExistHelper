@@ -1,25 +1,49 @@
 @page "/apiresults"  
 @inject ExistHelper.Services.ApiService ApiService  
 @inject ExistHelper.Services.ExistService ExistService  
+@inject IJSRuntime JS
 
+@using ExistHelper.Models
 
 <h3>Attribute Values</h3>  
 
+<h4>Core API Parameters</h4>
 <div class="mb-2">  
-    <label>Page: <input type="number" @bind="page" min="1" style="width:80px;" /></label>  
-    <label>Limit: <input type="number" @bind="limit" min="1" style="width:80px;" /></label>  
-    <label>Days: <input type="number" @bind="days" min="1" max="31" style="width:80px;" /></label>  
-    <label>Date Max: <input type="date" @bind="date_max" style="width:150px;" /></label>  
-</div>  
+    <label>Page: <input type="number" @bind="parameters.Pagination.Page" min="1" style="width:80px;" /></label>
+    <label>Limit: <input type="number" @bind="parameters.Pagination.Limit" min="1" style="width:80px;" /></label>
+    <label>Days: <input type="number" @bind="parameters.Days" min="1" max="31" style="width:80px;" /></label>  
+    <label>Date Max: <input type="date" @bind="parameters.Pagination.DateMax" style="width:150px;" /></label>  
+</div> 
 <div class="mb-2">  
-    <label>Groups: <input @bind="groups" placeholder="e.g. activity,workouts" style="width:200px;" /></label>  
-    <label>Attributes: <input @bind="attributes" placeholder="e.g. steps,weight" style="width:200px;" /></label>  
-    <label>Templates: <input @bind="templates" placeholder="e.g. template1,template2" style="width:200px;" /></label>  
+    <label>Groups: <input @bind="parameters.Groups" placeholder="e.g. activity,workouts" style="width:200px;" /></label>  
+    <label>Attributes: <input @bind="parameters.Attributes" placeholder="e.g. steps,weight" style="width:200px;" /></label>  
+    <label>Templates: <input @bind="parameters.Templates" placeholder="e.g. template1,template2" style="width:200px;" /></label>  
     <label>  
-        Manual Only: <input type="checkbox" @bind="manual" />  
-    </label>  
+        Manual Only: <input type="checkbox" @bind="parameters.Manual" />  
+    </label>
 </div>  
-<button class="btn btn-primary" @onclick="GetAttributeValues">Get Attribute Values</button>  
+
+<h4>Custom Functions</h4>
+<div class="mb-2">
+    <label>
+        <select @bind="selectedCustomFunction" style="width:250px;">
+            @foreach (var func in Enum.GetValues<CustomFunctions>())
+            {
+                <option value="@func">@func</option>
+            }
+        </select>
+    </label>
+</div>
+
+<h4>Post Processing</h4>
+<div class="mb-2">
+    <label>
+        Sanitize custom names: <input type="checkbox" @bind="sanitizeNames" />
+    </label>
+</div>
+
+<button class="btn btn-primary" @onclick="GetAttributeValues">Get Attribute Values</button>
+<button class="btn btn-secondary" @onclick="DownloadApiResults" style="margin-left: 8px;">Download API Results</button>
 
 @if (response == null)  
 {  
@@ -54,7 +78,7 @@ else
                             <td>@attr.Name</td>  
                             <td>@attr.ValueTypeDescription</td>  
                             <td>@attr.Service?.Label</td>  
-                            <td>@val.Date</td>  
+                            <td>@val.DateString</td>  
                             <td>@val.Value</td>  
                         </tr>  
                     }  
@@ -76,30 +100,31 @@ else
 }  
 
 @code {  
-
-
-    private int? page = 1;  
-    private int? limit;  
-    private int? days;  
-    private DateTime? date_max; // Fix for CS1503: Changed type from string to DateTime?  
-    private string? groups;  
-    private string? attributes;  
-    private string? templates;  
-    private bool? manual;  
+    private AttributesWithValuesParameters parameters = new();
+    private bool sanitizeNames = false;
+    private CustomFunctions selectedCustomFunction = CustomFunctions.None;
 
     private ExistHelper.Models.AttributeResponse? response;  
 
+    protected override void OnInitialized()
+    {
+    }
+
     private async Task GetAttributeValues()  
     {  
-        response = await ExistService.GetAttributesWithValuesAsync(  
-            page: page,  
-            limit: limit,  
-            days: days,  
-            date_max: date_max?.ToString("yyyy-MM-dd"), // Fix for CS0029: Convert DateTime? to string  
-            groups: groups,  
-            attributes: attributes,  
-            templates: templates,  
-            manual: manual == true ? true : (bool?)null  
-        );  
+        response = await ExistService.GetAttributesWithValuesAsync(parameters, sanitizeNames);  
     }  
+
+    private async Task DownloadApiResults()
+    {
+        var results = await ExistService.GetAttributesWithValuesAsync(parameters, sanitizeNames);
+
+        if (results != null)
+        {
+            var json = ExistHelper.Shared.SerializationHelper.Serialize(results);
+            var zipBytes = ExistHelper.Shared.ZipHelper.CreateZipWithJson(json, "apiresults.json");
+            var base64 = Convert.ToBase64String(zipBytes);
+            await JS.InvokeVoidAsync("zipDownload.saveZipBytes", base64, "apiresults.zip");
+        }
+    }
 }

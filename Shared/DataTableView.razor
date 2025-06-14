@@ -1,0 +1,35 @@
+@using System.Data
+
+@if (Table == null)
+{
+    <p>No data.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                @foreach (DataColumn col in Table.Columns)
+                {
+                    <th>@col.ColumnName</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (DataRow row in Table.Rows)
+            {
+                <tr>
+                    @foreach (DataColumn col in Table.Columns)
+                    {
+                        <td>@row[col]</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public DataTable? Table { get; set; }
+}

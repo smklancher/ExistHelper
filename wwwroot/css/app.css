@@ -101,3 +101,43 @@ a, .btn-link {
 code {
     color: #c02d76;
 }
+
+/* Dark mode styles */
+body.dark-mode,
+.page.dark-mode {
+    background-color: #181a1b !important;
+    color: #e8e6e3 !important;
+}
+
+.dark-mode .table {
+    color: #e8e6e3;
+    background-color: #23272b;
+}
+
+.dark-mode input,
+.dark-mode select,
+.dark-mode textarea,
+.dark-mode .form-control {
+    background-color: #23272b;
+    color: #e8e6e3;
+    border-color: #444;
+}
+
+.dark-mode .btn-primary,
+.dark-mode .btn-secondary {
+    background-color: #444;
+    color: #e8e6e3;
+    border-color: #666;
+}
+
+.dark-mode .navbar,
+.dark-mode .sidebar {
+    background-color: #23272b !important;
+}
+
+.dark-mode .nav-link,
+.dark-mode .navbar-brand {
+    color: #e8e6e3 !important;
+}
+
+/* Add more as needed for your UI */

@@ -1,4 +1,6 @@
-﻿namespace ExistHelper.Models
+﻿using System.Data;
+
+namespace ExistHelper.Models
 {
         public class AttributeGroup
         {
@@ -15,9 +17,18 @@
 
         public class AttributeValue
         {
-            public string Date { get; set; } = string.Empty;
+            public DateTime? Date { get; set; } 
+
+            public string DateString => Date?.ToString("yyyy-MM-dd") ?? string.Empty;
+
+            /// <summary>
+            /// To understand how this is deserialized, see the JsonConverter in Shared/JsonConverter.cs
+            /// <see cref="ExistHelper.Shared.JsonConverter"/>
+            /// </summary>
             public object? Value { get; set; } = null;
-        }
+
+            public string StringValue=>Value?.ToString() ?? string.Empty;
+    }
 
         public class AttributeResult
         {

@@ -8,12 +8,18 @@ namespace ExistHelper.Shared
         private static readonly JsonSerializerOptions Options = new()
         {
             PropertyNameCaseInsensitive = true,
-            Converters = { new JsonConverter() }
+            Converters = { new JsonConverter() },
+            WriteIndented = true
         };
 
         public static T? Deserialize<T>(string json)
         {
             return JsonSerializer.Deserialize<T>(json, Options);
+        }
+
+        public static string Serialize<T>(T value)
+        {
+            return JsonSerializer.Serialize(value, Options);
         }
     }
 }

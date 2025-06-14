@@ -1,0 +1,41 @@
+@page "/dayssince"
+@inject ExistHelper.Services.ExistService ExistService
+@inject ExistHelper.Services.ApiService ApiService
+
+@using System.Data
+@using ExistHelper.Shared
+
+<h3>Days Since</h3>
+
+@if (!hasToken)
+{
+    <p style="color:red;">No token available. Please set your token in Settings.</p>
+}
+else if (dataTable == null)
+{
+    <p>Loading...</p>
+}
+else if (dataTable.Rows.Count == 0)
+{
+    <p>No data found.</p>
+}
+else
+{
+    <DataTableView Table="dataTable" />
+}
+
+@code {
+    private DataTable? dataTable;
+
+    private bool hasToken => ApiService.IsTokenSet();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!hasToken)
+        {
+            dataTable = null;
+            return;
+        }
+        dataTable = await ExistService.LatestNonBlankAttributeResultsAsync2();
+    }
+}
